@@ -4,7 +4,7 @@ async function main() {
     const [owner, randomPerson] = await ethers.getSigners()
 
     const deployedContract = await ethers.deployContract("Domains")
-    await deployedContract.waitForDeployment()
+    await deployedContract.waitForDeployment("ninja")
 
     console.log(
         "Domains Contract Address:",
@@ -12,17 +12,16 @@ async function main() {
     )
     console.log("Domains Contract Owned by:", owner.address)
 
-    let txn = await deployedContract.register("doom")
+    let txn = await deployedContract.register("mortal", {
+        value: ethers.parseEther("0.1")
+    })
     await txn.wait()
 
-    const domainOwner = await deployedContract.getAddress("doom")
+    const domainOwner = await deployedContract.getAddress("mortal")
     console.log("Domains Contract Owned by:", domainOwner)
 
-    txn = await deployedContract
-        .connect(randomPerson)
-        .setRecord("doom", "Doom DNS Record")
-    await txn.wait()
-    console.log("task completed")
+    const balance = await ethers.provider.getBalance(domainOwner)
+    console.log("Contract Balance", ethers.formatEther(balance))
 }
 
 const runMain = async () => {
